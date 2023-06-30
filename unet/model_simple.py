@@ -93,8 +93,11 @@ class UNET(nn.Module):
             x10 = TF.resize(x10, size=skip_connections[0].shape[2:])
         x11 = torch.cat((skip_connections[0], x10), dim=1)
         x12 = self.up_conv1(x11)
-
+        
+        
         x13 = self.up_sample2(x12)
+        print('g='+ str(torch.Tensor.size(x12)))
+        print('x='+ str(torch.Tensor.size(x13)))
         if x13.shape != skip_connections[1].shape:
             x13 = TF.resize(x13, size=skip_connections[1].shape[2:])
         x14 = torch.cat((skip_connections[1], x13), dim=1)
