@@ -13,7 +13,7 @@ import os
 from tqdm import tqdm
 from dataset import LOAD_TEST
 from torch.utils.data import DataLoader
-from model import UNET
+from model import ATT_UNET
 from dice_calculator import dice
 
 
@@ -28,7 +28,7 @@ PIN_MEMORY = True
 LOAD_MODEL = True
 out_channels = 38
 
-model = UNET(in_channels=1,out_channels=out_channels).to(DEVICE)
+model = ATT_UNET(in_channels=1,out_channels=out_channels).to(DEVICE)
 
 
 # Predicting the testing dataset
