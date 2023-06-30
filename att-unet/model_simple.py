@@ -123,7 +123,7 @@ class ATT_UNET(nn.Module):
         x9 = self.deepest_conv(x8)
         # Readying skip connections tensor
         skip_connections = skip_connections[::-1]
-
+        
         ## upward path with attention gates
         # inputting: 
         # 1) gating signal (from lower layer), g (no upsampling)
@@ -132,7 +132,7 @@ class ATT_UNET(nn.Module):
         # a(g,x), where a is the attention gate defined in class ATTENTION_BLOCK
         a1 = self.attention_block1(g=x9,x=skip_connections[0])
         x10 = self.up_sample1(x9)
-        if x10.shape != a1.shape:
+        if x10.shape != a1.shape:                       # resizing to allow the concatenation, done at all stages
             x10 = TF.resize(x10, size=a1.shape[2:])
         x11 = torch.cat((a1,x10),dim=1)
         x12 = self.up_conv1(x11)
