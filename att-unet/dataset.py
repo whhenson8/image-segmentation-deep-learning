@@ -1,26 +1,32 @@
+## PyTorch implementation of data loaders.
+## Must have files as png (or change) with all targets labelled identically but with _mask suffix
+## 
+## separate function written for loading testing database, to keep training and testing separate.
+
+
 import os
 from PIL import Image
 from torch.utils.data import Dataset
 import numpy as np
-import albumentations as A
-import cv2
+import glob
 
+## Class designed to load our datasets (transforms == none, change if beneficial)
 class LOAD_Dataset(Dataset):
     def __init__(self,image_dir, mask_dir, transform=None):
-        self.image_dir = image_dir
-        self.mask_dir = mask_dir
         self.transform = transform
-        self.images = os.listdir(image_dir)
+        self.images = [os.path.basename(x) for x in glob.glob(image_dir)]
+        self.image_dir = image_dir.replace('*.png', '')
+        self.mask_dir = mask_dir.replace('*.png', '')
     def __len__(self):
         return len(self.images)
     
-####    ProcessImages for Torch    #####
+    # Read and process images for Torch
     
     def __getitem__(self, index):
         img_name = self.images[index].replace(".png", "")
         img_path = os.path.join(self.image_dir, self.images[index])
         mask_path = os.path.join(self.mask_dir, self.images[index].replace(".png", "_mask.png"))
-        
+    
         image = np.array(Image.open(img_path).convert("L"))
         mask = np.array(Image.open(mask_path).convert("L"),dtype=np.float32)
         
@@ -32,17 +38,17 @@ class LOAD_Dataset(Dataset):
             
         return image, mask, img_name
     
-    
+## Class designed to load our datasets (transforms == none, change if beneficial)
 class LOAD_TEST(Dataset):
     def __init__(self,image_dir, transform=None):
-        self.image_dir = image_dir
+        self.images = [os.path.basename(x) for x in glob.glob(image_dir)]
+        self.image_dir = image_dir.replace('*.png', '')
         self.transform = transform
-        self.images = os.listdir(image_dir)
-        
+
     def __len__(self):
         return len(self.images)
     
-####    ProcessImages for Torch    #####
+    # Read and process images for Torch
     
     def __getitem__(self, index):
         img_name = self.images[index].replace(".png", "")
@@ -55,4 +61,4 @@ class LOAD_TEST(Dataset):
             image = augmentations["image"]
             
         return image, img_name
-    
+
