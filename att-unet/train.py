@@ -16,7 +16,7 @@ from albumentations.pytorch import ToTensorV2
 import torch.nn as nn
 import torch.optim as optim
 import re
-from model import UNET
+from model import ATT_UNET
 from dice_calculator import dice
 from utils import (
     load_checkpoint,
@@ -37,8 +37,8 @@ PIN_MEMORY = True
 LOAD_MODEL = True
 
 # 2) Those typically requiring adapting to fit your needs
-NUM_EPOCHS = 10                             # Number of epochs to be trained for
-LOAD_EPOCH = 87                             # Which Epoch to load from
+NUM_EPOCHS = 30                             # Number of epochs to be trained for
+LOAD_EPOCH = 0                              # Which Epoch to load from
 IMAGE_HEIGHT = 272
 IMAGE_WIDTH = 240
 out_channels = 38

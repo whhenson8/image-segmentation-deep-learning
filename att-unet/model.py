@@ -1,7 +1,20 @@
+## PyTorch implementation of the UNet architecture for medical image segmentation
+## 'model_simple' is an easy to follow version of the impletmeentation,
+## expressing every step explicitly.
+## 
+## Running this script will run the 'test' defined at the bottom of the script. 
+## This will test that the input and output are as desired [batch, channels, image height, image width]
+##
+## New users - go through script and change:
+## 1) folder locations to those that suit.
+## 2) Number of channels for the UNET class __init__ constructor.
+
+
 import torch
 import torch.nn as nn
-import torchvision.transforms.functional as TF
+import torchvision.transforms.functional as TF 
 
+# Class built to make implementation of the double convolutions easier
 class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(DoubleConv, self).__init__()
@@ -13,23 +26,8 @@ class DoubleConv(nn.Module):
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
         )
-
     def forward(self, x):
         return self.conv(x)
-    
-class up_conv(nn.Module):
-    def __init__(self,in_channels,out_channels):
-        super(up_conv,self).__init__()
-        self.up = nn.Sequential(
-            nn.Upsample(scale_factor=2),
-            nn.Conv2d(in_channels,out_channels,kernel_size=3,stride=1,padding=1,bias=True),
-		    nn.BatchNorm2d(out_channels),
-			nn.ReLU(inplace=True)
-        )
-
-    def forward(self,x):
-        x = self.up(x)
-        return x
     
 class Attention_block(nn.Module):
     def __init__(self,F_g,F_l,F_int):
@@ -40,14 +38,15 @@ class Attention_block(nn.Module):
             )
         
         self.W_x = nn.Sequential(
-            nn.Conv2d(F_l, F_int, kernel_size=1,stride=1,padding=0,bias=True),
+            nn.Conv2d(F_l, F_int, kernel_size=1,stride=2,padding=0,bias=True),
             nn.BatchNorm2d(F_int)
         )
 
         self.psi = nn.Sequential(
             nn.Conv2d(F_int, 1, kernel_size=1,stride=1,padding=0,bias=True),
             nn.BatchNorm2d(1),
-            nn.Sigmoid()
+            nn.Sigmoid(),
+            nn.ConvTranspose2d(1, 1, kernel_size=2, stride=2)
         )
         
         self.relu = nn.ReLU(inplace=True)
@@ -55,95 +54,88 @@ class Attention_block(nn.Module):
     def forward(self,g,x):
         g1 = self.W_g(g)
         x1 = self.W_x(x)
+        if x1.shape != g1.shape:
+            x1 = TF.resize(x1, size=g1.shape[2:])
         psi = self.relu(g1+x1)
         psi = self.psi(psi)
-
+        if psi.shape != x.shape:
+            psi = TF.resize(psi, size=x.shape[2:])
         return x*psi
-    
+
 class ATT_UNET(nn.Module):
     def __init__(
-            self, in_channels=1, out_channels=38, features=[32, 64, 128, 256, 512, 1024],
+            self, in_channels=1, out_channels=38, features=[64, 128, 256, 512],
     ):
         super(ATT_UNET, self).__init__()
-        self.Maxpool = nn.MaxPool2d(kernel_size=2,stride=2)
 
-        self.Conv1 = DoubleConv(in_channels=in_channels,out_channels=features[1])
-        self.Conv2 = DoubleConv(in_channels=features[1],out_channels=features[2])
-        self.Conv3 = DoubleConv(in_channels=features[2],out_channels=features[3])
-        self.Conv4 = DoubleConv(in_channels=features[3],out_channels=features[4])
-        self.Conv5 = DoubleConv(in_channels=features[4],out_channels=features[5])
-        
-        # attention gate 1 (deepest)
-        self.Up1 = up_conv(in_channels=features[5],out_channels=features[4])
-        self.Att1 = Attention_block(F_g=features[4],F_l=features[4],F_int=features[3])
-        self.Up_conv1 = DoubleConv(in_channels=features[5], out_channels=features[4])
-        
-        # attention gate 2       
-        self.Up2 = up_conv(in_channels=features[4],out_channels=features[3])
-        self.Att2 = Attention_block(F_g=features[3],F_l=features[3],F_int=features[2])
-        self.Up_conv2 = DoubleConv(in_channels=features[4], out_channels=features[3])
-        
-        # attention gate 3
-        self.Up3 = up_conv(in_channels=features[3],out_channels=features[2])
-        self.Att3 = Attention_block(F_g=features[2],F_l=features[2],F_int=features[1])
-        self.Up_conv3 = DoubleConv(in_channels=features[3], out_channels=features[2])
-        
-        # attention gate 4 (shallowest)
-        self.Up4 = up_conv(in_channels=features[2],out_channels=features[1])
-        self.Att4 = Attention_block(F_g=features[1],F_l=features[1],F_int=features[0])
-        self.Up_conv4 = DoubleConv(in_channels=features[2], out_channels=features[1])
-    
+        # Defining the layers of the network
+        # Convolutions on downward half of UNet:
+        self.downs = nn.ModuleList()
+        self.down_sample = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.deepest_conv = DoubleConv(in_channels=features[3],out_channels=features[3]*2)
+        self.up_convs = nn.ModuleList()
+        self.up_samples = nn.ModuleList()
+        self.att_block = nn.ModuleList()
+        self.final_conv = nn.Conv2d(in_channels=features[0], out_channels=out_channels, kernel_size=1)
 
-        self.Conv_1x1 = nn.Conv2d(features[1],out_channels,kernel_size=1,stride=1,padding=0)
+        # Downward part of UNet
+        for feature in features:
+            self.downs.append(DoubleConv(in_channels, feature))
+            in_channels = feature
         
+        # Attention blocks
+        for feature in reversed(features):
+            self.att_block.append(
+                Attention_block(F_g= feature*2,F_l=feature,F_int=feature)
+                )
+            self.up_convs.append(
+                DoubleConv(feature*2, feature)
+                )
+            self.up_samples.append(
+                nn.ConvTranspose2d(feature*2, feature, kernel_size=2, stride=2)
+                )
+
+
     def forward(self,x):
-        # downward path
-        x1 = self.Conv1(x)
+        # initialise the skip connections variable - this will feed into the attention blocks
+        skip_connections = []
 
-        x2 = self.Maxpool(x1)
-        x2 = self.Conv2(x2)
+        # downward path, identical to UNet
+        for down in self.downs:
+            x = down(x)
+            skip_connections.append(x)
+            x = self.down_sample(x)
+
+        # Deepest convolution layer
+        x = self.deepest_conv(x)
+
+        # Readying skip connections tensor
+        skip_connections = skip_connections[::-1]
         
-        x3 = self.Maxpool(x2)
-        x3 = self.Conv3(x3)
+        ## upward path with attention gates
 
-        x4 = self.Maxpool(x3)
-        x4 = self.Conv4(x4)
+        for idx in range(len(self.up_convs)):
+            a = self.att_block[idx](g=x,x=skip_connections[idx])
+            x = self.up_samples[idx](x)
+            if x.shape != a.shape:                       # resizing to allow the concatenation, done at all stages
+                x = TF.resize(x, size=a.shape[2:])
+            x = torch.cat((a,x),dim=1)
+            x = self.up_convs[idx](x)
 
-        x5 = self.Maxpool(x4)
-        x5 = self.Conv5(x5)
-        
-        # upward path with attention gates/
-        d1 = self.Up1(x5)
-        x4 = self.Att1(g=d1,x=x4)
-        d1 = torch.cat((x4,d1),dim=1)        
-        d1 = self.Up_conv1(d1)
-        
-        d2 = self.Up2(d1)
-        x3 = self.Att2(g=d2,x=x3)
-        d2 = torch.cat((x3,d2),dim=1)
-        d2 = self.Up_conv2(d2)
+        x_out = self.final_conv(x)
 
-        d3 = self.Up3(d2)
-        x2 = self.Att3(g=d3,x=x2)
-        d3 = torch.cat((x2,d3),dim=1)
-        d3 = self.Up_conv3(d3)
+        return x_out
 
-        d4 = self.Up4(d3)
-        x1 = self.Att4(g=d4,x=x1)
-        d4 = torch.cat((x1,d4),dim=1)
-        d4 = self.Up_conv4(d4)
-
-        d5 = self.Conv_1x1(d4)
-
-        return d5
-
+## Simple test function desinged to test that the UNet is taking in and outputting tensors of the correct size
 def test():
-    x = torch.randn((1, 1, 160, 160))
+    # x is a random tensor representing an input to UNet [batch=1, channels=1, height=321, width=321]
+    x = torch.randn((1, 1, 161, 161))
     model = ATT_UNET(in_channels=1, out_channels=38)
     preds = model(x)
-    print(preds.shape)
+    preds_2 = torch.unsqueeze(torch.argmax(preds,dim=1),dim=1)
     print(x.shape)
-    assert preds.shape == x.shape
+    print(preds.shape)
+    assert preds_2.shape == x.shape
 
 if __name__ == "__main__":
     test()
