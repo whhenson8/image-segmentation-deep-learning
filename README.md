@@ -9,6 +9,7 @@ In this repository, three convolutional neural network architectures are impleme
 
 ## Table of Contents
 
+![image](https://github.com/whhenson8/image-segmentation-deep-learning/assets/136348259/994c4a40-5950-4e0b-9e27-db4e77c7eab3)
 
 Getting Started
 Provide instructions on how to get the project up and running on a user's local machine. Include any dependencies, installation steps, or prerequisites that need to be fulfilled.
