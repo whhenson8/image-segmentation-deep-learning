@@ -21,7 +21,10 @@ Please note that due to ethical regulations, no sensitive medical data is stored
 The code is simple to use and is commented in the areas that may need adjusting to suit your needs. Follow the steps outlined below to train these networks for your specific task.
 
   1) Get your data set up. These models are implemented to allow many images captured from one subject to be trained on and segmented.   Each image should be labelled with a specific code containging subject ID and the Image number (e.g. SubjectID_ImageNumber ->          'MC1001_1.png'). If required, download images from: https://doi.org/10.15131/shef.data.20440164, and masks from:                       https://doi.org/10.15131/shef.data.20440203 and assign subjects to each of train, validation, and test in the 'data' folder.
-  2) Check the code. Check the locations of the folders on your local machine. These are highlighted in the code. Moreover, Check that your
+  2) Check the code. Firstly, check the locations of the folders on your local machine - these are highlighted in the code. Secondly, check that the number of out_channels (classes) matches the number of classes in your segmentation task (e.g. if only checking for one tissue, no. of classes = 1).
+  3) Change the hyperparameters to fit your preferences in train.py. You are welcome to leave some as they are but epoch and checkpoints should be manually altered.
+  4) Run train.py. This will train the model. When changing hyperparameters and loading from previous checkpoints, take care of the checkpoint number (LOAD_EPOCH).
+  5) When complete, use test.py
 
 
 Usage
