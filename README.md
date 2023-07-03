@@ -10,7 +10,7 @@ In this repository, three convolutional neural network architectures are impleme
 ## Table of Contents
 
 ![image](https://github.com/whhenson8/image-segmentation-deep-learning/assets/136348259/994c4a40-5950-4e0b-9e27-db4e77c7eab3)
-Figure: Flowchart showcasing contents of the repository. Elements with curved edges represent folders, the square element holds the executable scripts.
+***Figure**: Flowchart showcasing contents of the repository. Elements with curved edges represent folders, the square element holds the executable scripts.*
 
 There are two implementations of the UNet and Attention-UNet, both in PyTorch. model_simple.py outlines each stage explicitly to allow beginners to follow through the stages. model.py outlines the archetectures in a sligtly more complex, less memory intensive way. The SC-UNet is outlined without a simple implementation.
 
@@ -18,7 +18,10 @@ Please note that due to ethical regulations, no sensitive medical data is stored
 
 
 ## Getting Started
-Provide instructions on how to get the project up and running on a user's local machine. Include any dependencies, installation steps, or prerequisites that need to be fulfilled.
+The code is simple to use and is commented in the areas that may need adjusting to suit your needs. Follow the steps outlined below to train these networks for your specific task.
+
+  1) Get your data set up. These models are implemented to allow many images captured from one subject to be trained on and segmented.   Each image should be labelled with a specific code containging subject ID and the Image number (e.g. SubjectID_ImageNumber ->          'MC1001_1.png').
+
 
 Usage
 Explain how users can use your project. Provide examples, code snippets, or command-line instructions to demonstrate the project's functionality and showcase its key features.
