@@ -20,7 +20,8 @@ Please note that due to ethical regulations, no sensitive medical data is stored
 ## Getting Started
 The code is simple to use and is commented in the areas that may need adjusting to suit your needs. Follow the steps outlined below to train these networks for your specific task.
 
-  1) Get your data set up. These models are implemented to allow many images captured from one subject to be trained on and segmented.   Each image should be labelled with a specific code containging subject ID and the Image number (e.g. SubjectID_ImageNumber ->          'MC1001_1.png').
+  1) Get your data set up. These models are implemented to allow many images captured from one subject to be trained on and segmented.   Each image should be labelled with a specific code containging subject ID and the Image number (e.g. SubjectID_ImageNumber ->          'MC1001_1.png'). If required, download images from: https://doi.org/10.15131/shef.data.20440164, and masks from:                       https://doi.org/10.15131/shef.data.20440203 and assign subjects to each of train, validation, and test in the 'data' folder.
+  2) Check the code. Check the locations of the folders on your local machine. These are highlighted in the code. Moreover, Check that your
 
 
 Usage
