@@ -15,6 +15,8 @@ from dataset import LOAD_TEST
 from torch.utils.data import DataLoader
 from model import UNET
 from dice_calculator import dice
+from utils import load_checkpoint
+
 
 
 #
@@ -26,6 +28,7 @@ BATCH_SIZE = 8
 NUM_WORKERS = 2
 PIN_MEMORY = True
 LOAD_MODEL = True
+LOAD_EPOCH = 87
 out_channels = 38
 
 model = UNET(in_channels=1,out_channels=out_channels).to(DEVICE)
@@ -45,6 +48,9 @@ def main():
     else:
         print(f"Folder '{'/data/test_preds'}' already exists. Saving predictions of testing data there.")
 
+    print("=> Loading checkpoint for testing")
+    load_checkpoint(torch.load("/checkpoints/checkpoint{}.pth.tar".format(LOAD_EPOCH)), model)
+    
     pred_test(
             test_loader, model, folder="/data/test_preds", device=DEVICE
         )
