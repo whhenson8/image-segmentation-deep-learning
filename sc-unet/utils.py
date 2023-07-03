@@ -7,7 +7,7 @@ import torchvision
 import re
 import os
 from tqdm import tqdm
-from dataset import (LOAD_Dataset,
+from dataset import (MRIDataset,
                      LOAD_TEST)
 from torch.utils.data import DataLoader
 
@@ -41,7 +41,7 @@ def get_loaders(
         num_workers=4,
         pin_memory=True,
 ):
-    train_ds = LOAD_Dataset(
+    train_ds = MRIDataset(
         image_dir=train_dir,
         mask_dir=train_maskdir,
         transform=train_transform,
@@ -55,7 +55,7 @@ def get_loaders(
         shuffle=True,
     )
     
-    val_ds = LOAD_Dataset(
+    val_ds = MRIDataset(
         image_dir=val_dir,
         mask_dir=val_maskdir,
         transform=val_transform,

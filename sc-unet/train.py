@@ -7,7 +7,7 @@
 ## 
 ## New users - go through script and change:
 ## 1) folder locations to those that suit.
-## 2) Number of channels for the UNET class __init__ constructor.
+## 2) Number of channels for the SC_UNET class __init__ constructor.
 
 import torch
 from tqdm import tqdm
@@ -16,7 +16,7 @@ from albumentations.pytorch import ToTensorV2
 import torch.nn as nn
 import torch.optim as optim
 import re
-from model import UNET
+from model import SC_UNET
 from dice_calculator import dice
 from utils import (
     load_checkpoint,
@@ -113,7 +113,7 @@ def main():
         ],
     )
     
-    model = UNET(in_channels=1,out_channels=out_channels).to(DEVICE)          ## model to be trained
+    model = SC_UNET(in_channels=1,out_channels=out_channels).to(DEVICE)          ## model to be trained
     loss_fn = nn.CrossEntropyLoss()                                 ## can be changed to other loss function.
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)    ## can be changed to other optimizer
     
