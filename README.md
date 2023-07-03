@@ -1,11 +1,14 @@
 # image-segmentation-deep-learning
-## Based on the paper (to be published) - Automatic segmentation of lower limb muscles from MR images of post-menopausal women based on Deep Learning and data augmentation.
+Based on the paper (to be published) - Automatic segmentation of lower limb muscles from MR images of post-menopausal women based on Deep Learning and data augmentation.
 
-Description
-A concise description of your project, providing an overview of its purpose, functionality, and any key features. It should be written in a way that helps users understand what your project does.
+## Description
+In this repository, three convolutional neural network architectures are implemented: the UNet, Attention UNet, and Spatial Channel UNet. 
+1) UNet - Follows directly the paper by Ronneberger et al. 2015 (arXiv:1505.04597).
+2) Att-UNet - Follows directly the paper by Oktay et al. 2018 (arXiv:1804.03999).
+3) SC-UNet - Novel neural network architecture that combines imaging data and spatial data associated with medical images.
 
-Table of Contents
-Include a table of contents to help users navigate through your README file. This is especially useful for larger projects with multiple sections.
+## Table of Contents
+
 
 Getting Started
 Provide instructions on how to get the project up and running on a user's local machine. Include any dependencies, installation steps, or prerequisites that need to be fulfilled.
