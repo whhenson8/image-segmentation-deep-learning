@@ -2,7 +2,7 @@
 Based on the paper (to be published) - Automatic segmentation of lower limb muscles from MR images of post-menopausal women based on Deep Learning and data augmentation.
 
 ## Description
-In this repository, three convolutional neural network architectures are implemented: the UNet, Attention UNet, and Spatial Channel UNet. 
+In this repository, three convolutional neural network architectures are implemented: the UNet, Attention UNet (att-unet), and Spatial Channel UNet (sc-unet). 
 1) UNet - Follows directly the paper by Ronneberger et al. 2015 (arXiv:1505.04597).
 2) Att-UNet - Follows directly the paper by Oktay et al. 2018 (arXiv:1804.03999).
 3) SC-UNet - Novel neural network architecture that combines imaging data and spatial data associated with medical images.
@@ -10,8 +10,14 @@ In this repository, three convolutional neural network architectures are impleme
 ## Table of Contents
 
 ![image](https://github.com/whhenson8/image-segmentation-deep-learning/assets/136348259/994c4a40-5950-4e0b-9e27-db4e77c7eab3)
+Figure: Flowchart showcasing contents of the repository. Elements with curved edges represent folders, the square element holds the executable scripts.
 
-Getting Started
+There are two implementations of the UNet and Attention-UNet, both in PyTorch. model_simple.py outlines each stage explicitly to allow beginners to follow through the stages. model.py outlines the archetectures in a sligtly more complex, less memory intensive way. The SC-UNet is outlined without a simple implementation.
+
+Please note that due to ethical regulations, no sensitive medical data is stored in this repository. 
+
+
+## Getting Started
 Provide instructions on how to get the project up and running on a user's local machine. Include any dependencies, installation steps, or prerequisites that need to be fulfilled.
 
 Usage
